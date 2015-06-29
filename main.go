@@ -1,14 +1,9 @@
 package main
 
 import (
-	"bytes"
-	"compress/zlib"
-	"encoding/binary"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
-	"os"
 )
 
 type Section struct {
@@ -20,77 +15,40 @@ func (s *Section) Slice(bs []byte) []byte {
 }
 
 func main() {
-	f, err := os.OpenFile("./esv/ot.bzs", os.O_RDONLY, 0600)
+	fmt.Println("\nOld Testament\n")
+
+	otChaps, err := readGroup("./esv/ot")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i, chap := range otChaps {
+		fmt.Println(i+1, len(chap))
+	}
+
+	fmt.Println("\nNew Testament\n")
+	chapters, err := readGroup("./esv/nt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i, chap := range chapters {
+		fmt.Println(i+1, len(chap))
+	}
+
+	err = ioutil.WriteFile("./out.xml", chapters[24], 0660)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sects := make([]Section, 0, 20)
-
-	for {
-		s := Section{}
-		check(binary.Read(f, binary.LittleEndian, &s.Start))
-		check(binary.Read(f, binary.LittleEndian, &s.Length))
-		done := check(binary.Read(f, binary.LittleEndian, &s.Uncompressed))
-
-		sects = append(sects, s)
-
-		if done {
-			break
-		}
-	}
-
-	fmt.Printf("sects = %+v\n", sects)
-
-	ss := read("./esv/ot.bzz", sects)
-
-	fmt.Println(len(sects), len(ss))
 }
 
-func check(err error) bool {
+func readGroup(name string) ([][]byte, error) {
+	sects, err := readHeader(name + ".bzs")
 	if err != nil {
-		if err == io.EOF {
-			return true
-		} else {
-			log.Fatal(err)
-		}
+		return nil, err
 	}
-	return false
-}
-
-func read(file string, sects []Section) [][]byte {
-	f, err := os.OpenFile(file, os.O_RDONLY, 0600)
+	ss, err := readFile(name+".bzz", sects)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer f.Close()
-
-	bs, err := ioutil.ReadAll(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	sections := make([][]byte, 0, 20)
-
-	for _, s := range sects {
-		zr, err := zlib.NewReader(bytes.NewBuffer(s.Slice(bs)))
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				log.Fatal(err)
-			}
-		}
-		sectB, err := ioutil.ReadAll(zr)
-		if err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				log.Fatal(err)
-			}
-		}
-		sections = append(sections, sectB)
-	}
-
-	return sections
+	return ss, nil
 }
