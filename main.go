@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/andrewstuart/bible/osis"
 )
@@ -24,12 +25,26 @@ func main() {
 	}
 
 	dec := xml.NewDecoder(r)
-
 	err = dec.Decode(&b)
+	if err != nil {
+		log.Fatal(err)
+	}
+	b.Index()
 
+	v, err := b.GetVerse("Gen.1.1")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(b.Testaments[0].Books[0].Chapters[0].Verses[0])
+	for _, r := range v.Refs {
+		if strings.Index(r.RefID, "-") > -1 {
+			continue
+		}
+		fmt.Printf("r.RefID = %+v\n", r.RefID)
+		ref, err := b.GetVerse(r.RefID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%+v\n", ref)
+	}
 }
