@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 )
 
@@ -33,12 +32,6 @@ func main() {
 	for i, chap := range chapters {
 		fmt.Println(i+1, len(chap))
 	}
-
-	err = ioutil.WriteFile("./out.xml", chapters[24], 0660)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 }
 
 func readGroup(name string) ([][]byte, error) {
