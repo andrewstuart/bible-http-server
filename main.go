@@ -29,22 +29,40 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	b.Index()
 
-	v, err := b.GetVerse("Gen.1.1")
+	err = checkCycle(&b, "Gen.1.1")
 	if err != nil {
+		fmt.Println(len(visited))
 		log.Fatal(err)
 	}
+}
 
-	for _, r := range v.Refs {
-		if strings.Index(r.RefID, "-") > -1 {
-			continue
-		}
-		fmt.Printf("r.RefID = %+v\n", r.RefID)
-		ref, err := b.GetVerse(r.RefID)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%+v\n", ref)
+var AlreadyVisited = fmt.Errorf("Visited")
+var visited = make(map[string]bool)
+
+func checkCycle(b *osis.Bible, r string) error {
+	if strings.Index(r, "-") > -1 {
+		return nil
 	}
+
+	v, err := b.GetVerse(r)
+
+	if err != nil {
+		return err
+	}
+
+	visited[v.ID] = true
+
+	for i := range v.Refs {
+		if visited[v.Refs[i].RefID] {
+			fmt.Println(v.ID, v.Refs[i].RefID)
+			//Anchor/escape
+			return AlreadyVisited
+		}
+
+		if err := checkCycle(b, v.Refs[i].RefID); err != nil {
+			return err
+		}
+	}
+	return nil
 }

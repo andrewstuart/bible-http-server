@@ -8,9 +8,9 @@ import (
 )
 
 type Bible struct {
-	BooksById  map[string]*Book
-	XMLName    xml.Name    `xml:"osis"`
-	Testaments []Testament `xml:"osisText>div"`
+	BooksById  map[string]*Book `json:"-"xml:"-"`
+	XMLName    xml.Name         `xml:"osis"json:"-"`
+	Testaments []Testament      `xml:"osisText>div"json:"testaments"`
 }
 
 var (
@@ -41,7 +41,7 @@ func (b *Bible) GetVerse(ref string) (*Verse, error) {
 	vs--
 
 	if b.BooksById == nil {
-		b.Index()
+		b.index()
 	}
 
 	if bk, ok := b.BooksById[book]; ok {
@@ -53,7 +53,7 @@ func (b *Bible) GetVerse(ref string) (*Verse, error) {
 	return nil, NoSuchVerse
 }
 
-func (b *Bible) Index() {
+func (b *Bible) index() {
 	b.BooksById = make(map[string]*Book)
 	for i := range b.Testaments {
 		for j := range b.Testaments[i].Books {
