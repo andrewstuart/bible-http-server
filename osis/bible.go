@@ -3,6 +3,7 @@ package osis
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -11,6 +12,20 @@ type Bible struct {
 	BooksById  map[string]int `json:"-"xml:"-"`
 	XMLName    xml.Name       `xml:"osis"json:"-"`
 	Testaments []Testament    `xml:"osisText>div"json:"testaments"`
+	Version    Version        `xml:"osisText>header>work"json:"version"`
+}
+
+func NewBible(r io.Reader) (*Bible, error) {
+	b := &Bible{}
+	dec := xml.NewDecoder(r)
+
+	err := dec.Decode(b)
+	if err != nil {
+		return nil, err
+	}
+	b.index()
+
+	return b, nil
 }
 
 var (
@@ -47,6 +62,12 @@ func (b *Bible) index() {
 			b.Books = append(b.Books, &b.Testaments[i].Books[j])
 		}
 	}
+}
+
+type Version struct {
+	Title     string `xml:"title"json:"title"`
+	ID        string `xml:"identifier"json:"id"`
+	RefSystem string `xml:"refSystem"json:"refSystem"`
 }
 
 type Testament struct {

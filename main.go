@@ -3,7 +3,6 @@ package main
 import (
 	"compress/gzip"
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"log"
 	"net/http"
@@ -48,17 +47,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dec := xml.NewDecoder(r)
-	err = dec.Decode(&b)
+	b, err := osis.NewBible(r)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	log.Println("ESV Loaded")
 
-	rtr := mux.NewRouter()
+	err = store(b)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	rtr.HandleFunc("/{book}/{chapter}/{verse}", SetHeaders(GetVerse))
+	log.Println("ESV stored.")
 
-	http.ListenAndServe(":8080", rtr)
+	fmt.Printf("b.Version = %+v\n", b.Version)
+
+	// 	rtr := mux.NewRouter()
+	// 	rtr.HandleFunc("/{book}/{chapter}/{verse}", SetHeaders(GetVerse))
+	// 	http.ListenAndServe(":8080", rtr)
 }
