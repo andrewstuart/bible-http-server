@@ -2,17 +2,41 @@ package main
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
-	"strings"
 
 	"github.com/andrewstuart/bible/osis"
+	"github.com/gorilla/mux"
 )
 
+func SetHeaders(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next.ServeHTTP(w, r)
+	}
+}
+
+func GetVerse(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	ref := fmt.Sprintf("%s.%s.%s", vars["book"], vars["chapter"], vars["verse"])
+	v, err := b.GetVerse(ref)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	enc := json.NewEncoder(w)
+	enc.Encode(v)
+}
+
+var b osis.Bible
+
 func main() {
-	b := osis.Bible{}
+	b = osis.Bible{}
 
 	zipped, err := os.Open("./bibles/esv.xml.gz")
 	if err != nil {
@@ -29,34 +53,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
 
-var AlreadyVisited = fmt.Errorf("Visited")
-var visited = make(map[string]bool)
+	log.Println("ESV Loaded")
 
-func checkCycle(b *osis.Bible, r string) error {
-	if strings.Index(r, "-") > -1 {
-		return nil
-	}
+	rtr := mux.NewRouter()
 
-	v, err := b.GetVerse(r)
+	rtr.HandleFunc("/{book}/{chapter}/{verse}", SetHeaders(GetVerse))
 
-	if err != nil {
-		return err
-	}
-
-	visited[v.ID] = true
-
-	for i := range v.Refs {
-		if visited[v.Refs[i].RefID] {
-			fmt.Println(v.ID, v.Refs[i].RefID)
-			//Anchor/escape
-			return AlreadyVisited
-		}
-
-		if err := checkCycle(b, v.Refs[i].RefID); err != nil {
-			return err
-		}
-	}
-	return nil
+	http.ListenAndServe(":8080", rtr)
 }

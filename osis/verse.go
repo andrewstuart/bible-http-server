@@ -22,6 +22,7 @@ type VerseRef struct {
 }
 
 func NewVerseRef(ref string) (*VerseRef, error) {
+	ref = strings.ToLower(ref)
 	vr := VerseRef{}
 
 	strs := strings.Split(ref, ".")

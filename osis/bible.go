@@ -3,6 +3,7 @@ package osis
 import (
 	"encoding/xml"
 	"fmt"
+	"strings"
 )
 
 type Bible struct {
@@ -42,7 +43,7 @@ func (b *Bible) index() {
 	for i := range b.Testaments {
 		//Append to list of all books
 		for j := range b.Testaments[i].Books {
-			b.BooksById[b.Testaments[i].Books[j].ID] = len(b.Books)
+			b.BooksById[strings.ToLower(b.Testaments[i].Books[j].ID)] = len(b.Books)
 			b.Books = append(b.Books, &b.Testaments[i].Books[j])
 		}
 	}
