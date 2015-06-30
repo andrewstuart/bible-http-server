@@ -3,14 +3,13 @@ package osis
 import (
 	"encoding/xml"
 	"fmt"
-	"strconv"
-	"strings"
 )
 
 type Bible struct {
-	BooksById  map[string]*Book `json:"-"xml:"-"`
-	XMLName    xml.Name         `xml:"osis"json:"-"`
-	Testaments []Testament      `xml:"osisText>div"json:"testaments"`
+	Books      []*Book        `json:"-"xml:"-"`
+	BooksById  map[string]int `json:"-"xml:"-"`
+	XMLName    xml.Name       `xml:"osis"json:"-"`
+	Testaments []Testament    `xml:"osisText>div"json:"testaments"`
 }
 
 var (
@@ -19,45 +18,32 @@ var (
 )
 
 func (b *Bible) GetVerse(ref string) (*Verse, error) {
-	strs := strings.Split(ref, ".")
-	if len(strs) < 3 {
-		return nil, InvalidRef
-	}
-
-	book := strs[0]
-
-	chap, err := strconv.Atoi(strs[1])
+	vr, err := NewVerseRef(ref)
 	if err != nil {
-		return nil, InvalidRef
+		return nil, err
 	}
-	//Human -> arr index
-	chap--
-
-	vs, err := strconv.Atoi(strs[2])
-	if err != nil {
-		return nil, InvalidRef
-	}
-	//Human -> arr index
-	vs--
 
 	if b.BooksById == nil {
 		b.index()
 	}
 
-	if bk, ok := b.BooksById[book]; ok {
-		if chap < len(bk.Chs) && vs < len(bk.Chs[chap].Vrs) {
-			return &b.BooksById[book].Chs[chap].Vrs[vs], nil
+	if bIdx, ok := b.BooksById[vr.BookID]; ok {
+		bk := b.Books[bIdx]
+		if vr.Chapter < len(bk.Chs) && vr.Verse < len(bk.Chs[vr.Chapter].Vrs) {
+			return bk.Chs[vr.Chapter].Vrs[vr.Verse], nil
 		}
 	}
 
 	return nil, NoSuchVerse
 }
-
 func (b *Bible) index() {
-	b.BooksById = make(map[string]*Book)
+	b.BooksById = make(map[string]int)
+	b.Books = make([]*Book, 0, 56)
 	for i := range b.Testaments {
+		//Append to list of all books
 		for j := range b.Testaments[i].Books {
-			b.BooksById[b.Testaments[i].Books[j].ID] = &b.Testaments[i].Books[j]
+			b.BooksById[b.Testaments[i].Books[j].ID] = len(b.Books)
+			b.Books = append(b.Books, &b.Testaments[i].Books[j])
 		}
 	}
 }
@@ -67,22 +53,11 @@ type Testament struct {
 }
 
 type Book struct {
-	Chs []Chapter `xml:"chapter"`
-	ID  string    `xml:"osisID,attr"`
+	Chs []*Chapter `xml:"chapter"`
+	ID  string     `xml:"osisID,attr"`
 }
 
 type Chapter struct {
-	Vrs []Verse `xml:"verse"`
-	ID  string  `xml:"osisID,attr"`
-}
-
-type Verse struct {
-	Text string      `xml:",chardata"`
-	ID   string      `xml:"osisID,attr"`
-	Refs []Reference `xml:"note>reference"`
-}
-
-type Reference struct {
-	Text  string `xml:",chardata"`
-	RefID string `xml:"osisRef,attr"`
+	Vrs []*Verse `xml:"verse"`
+	ID  string   `xml:"osisID,attr"`
 }

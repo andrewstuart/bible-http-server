@@ -29,12 +29,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = checkCycle(&b, "Gen.1.1")
-	if err != nil {
-		fmt.Println(len(visited))
-		log.Fatal(err)
-	}
 }
 
 var AlreadyVisited = fmt.Errorf("Visited")
