@@ -36,8 +36,13 @@ func SearchVerse(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(404)
 }
 
+//VerseResult is simply a representation of a Verse with a few additional
+//desired items that couldn't be inferred from context
 type VerseResult struct {
-	Match float64 `json:"match"`
+	Book     string  `json:"book"`
+	Chapter  string  `json:"chapter"`
+	VerseNum string  `json:"verse"`
+	Match    float64 `json:"match"`
 	osis.Verse
 }
 
@@ -59,7 +64,7 @@ func search(str string) ([]VerseResult, error) {
 	verses := make([]VerseResult, 0, 5)
 	for verseCurs.Next() {
 		v := VerseResult{}
-		verseCurs.Scan(&v.Verse.Book, &v.Verse.Chapter, &v.Verse.Verse, &v.Verse.ID, &v.Verse.Text, &v.Match)
+		verseCurs.Scan(&v.Book, &v.Chapter, &v.VerseNum, &v.Verse.ID, &v.Verse.Text, &v.Match)
 
 		verses = append(verses, v)
 	}
