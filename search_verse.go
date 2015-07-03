@@ -1,0 +1,68 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/andrewstuart/bible/osis"
+)
+
+func SearchVerse(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+
+	log.Printf("Search for verse term: %s\n", q)
+
+	if q != "" {
+		verses, err := search(q)
+		if err != nil {
+			w.WriteHeader(500)
+			log.Printf("Error searching %s: %v\n", q, err)
+			fmt.Fprintf(w, "Error searching: %v", err)
+			return
+		}
+
+		if len(verses) == 0 {
+			w.WriteHeader(404)
+			return
+		}
+
+		enc := json.NewEncoder(w)
+		enc.Encode(verses)
+		return
+	}
+
+	w.WriteHeader(404)
+}
+
+type VerseResult struct {
+	Match float64 `json:"match"`
+	osis.Verse
+}
+
+const VerseQuery = `
+SELECT v.book, v.chapter, v.verse, vv.verseid, vv.text, ts_rank(vect, q)
+FROM to_tsquery($1) q, verse_version vv 
+INNER JOIN verse v
+	ON v.id = vv.verseid
+WHERE vv.vect @@ q
+`
+
+func search(str string) ([]VerseResult, error) {
+	verseCurs, err := db.Query(VerseQuery, str)
+
+	if err != nil {
+		return nil, err
+	}
+
+	verses := make([]VerseResult, 0, 5)
+	for verseCurs.Next() {
+		v := VerseResult{}
+		verseCurs.Scan(&v.Verse.Book, &v.Verse.Chapter, &v.Verse.Verse, &v.Verse.ID, &v.Verse.Text, &v.Match)
+
+		verses = append(verses, v)
+	}
+
+	return verses, nil
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/gzip"
 	"database/sql"
 	"fmt"
 	"log"
@@ -18,16 +19,27 @@ const (
 	verseInsert   = `INSERT INTO book (id, name, ord) VALUES ($1, $1, $2)`
 )
 
-func store(b *osis.Bible) error {
-	pass := strings.TrimSpace(os.Getenv("PGPASSWORD"))
-	log.Println(pass)
-	dbConn := fmt.Sprintf("postgres://bible:%s@localhost/bible?sslmode=disable", pass)
-	log.Println(dbConn)
-	db, err := sql.Open("postgres", dbConn)
-	if err != nil {
-		return err
+var db *sql.DB
+
+const PassEnvName = "PGPASSWORD"
+
+func init() {
+	var err error
+
+	pass := strings.TrimSpace(os.Getenv(PassEnvName))
+	if pass == "" {
+		log.Fatalf("Please set %s environment variable with postgres password.", PassEnvName)
 	}
 
+	dbConn := fmt.Sprintf("postgres://bible:%s@localhost/bible?sslmode=disable", pass)
+
+	db, err = sql.Open("postgres", dbConn)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func store(b *osis.Bible) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
@@ -85,4 +97,18 @@ func store(b *osis.Bible) error {
 	}
 
 	return nil
+}
+
+func loadFromGzippedFile(path string) (*osis.Bible, error) {
+	zipped, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := gzip.NewReader(zipped)
+	if err != nil {
+		return nil, err
+	}
+
+	return osis.NewBible(r)
 }

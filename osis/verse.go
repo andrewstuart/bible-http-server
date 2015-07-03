@@ -6,13 +6,16 @@ import (
 )
 
 type Verse struct {
-	Text string      `xml:",chardata"`
-	ID   string      `xml:"osisID,attr"`
-	Refs []Reference `xml:"note>reference"`
+	Book    string      `json:"book"`
+	Chapter string      `json:"chapter"`
+	Verse   string      `json:"verse"`
+	Text    string      `xml:",chardata"json:"text"`
+	ID      string      `xml:"osisID,attr"json:"id"`
+	Refs    []Reference `xml:"note>reference"json:"references"`
 }
 
 type Reference struct {
-	Text  string `xml:",chardata"`
+	Text  string `xml:",chardata"json:"text"`
 	RefID string `xml:"osisRef,attr"`
 }
 
