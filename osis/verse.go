@@ -8,12 +8,12 @@ import (
 type Verse struct {
 	Text string      `xml:",chardata"json:"text"`
 	ID   string      `xml:"osisID,attr"json:"id"`
-	Refs []Reference `xml:"note>reference"json:"references"`
+	Refs []Reference `xml:"note>reference"json:"references,omitempty"`
 }
 
 type Reference struct {
-	Text  string `xml:",chardata"json:"text"`
-	RefID string `xml:"osisRef,attr"`
+	Text  string `xml:",chardata"json:"text"json:"comment"`
+	RefID string `xml:"osisRef,attr"json:"refid"`
 }
 
 type VerseRef struct {

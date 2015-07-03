@@ -39,10 +39,11 @@ func SearchVerse(w http.ResponseWriter, r *http.Request) {
 //VerseResult is simply a representation of a Verse with a few additional
 //desired items that couldn't be inferred from context
 type VerseResult struct {
-	Book     string  `json:"book"`
-	Chapter  string  `json:"chapter"`
-	VerseNum string  `json:"verse"`
-	Match    float64 `json:"match"`
+	Book      string  `json:"book"`
+	Chapter   int     `json:"chapter"`
+	VerseNum  int     `json:"verse"`
+	VersionId string  `json:"version,omitempty"`
+	Match     float64 `json:"match,omitempty"`
 	osis.Verse
 }
 
