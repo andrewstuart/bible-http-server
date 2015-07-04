@@ -72,8 +72,11 @@ func store(b *osis.Bible) error {
 
 					var verseId int
 					err = tx.QueryRow(`SELECT id FROM verse  where book = $1 and chapter = $2 and verse = $3`, bk.ID, j+1, k+1).Scan(&verseId)
+
 					if err != nil {
-						return
+						log.Printf("Could not find %s %d:%d, inserting.\n", bk.ID, j+1, k+1)
+						err = tx.QueryRow(`INSERT INTO verse (book, chapter, verse) values ($1, $2, $3) RETURNING id`, bk.ID, j+1, k+1).Scan(&verseId)
+						continue
 					}
 
 					_, err = tx.Exec(`INSERT INTO verse_version (versionId, verseId, text) values ($1, $2, $3)`, versionId, verseId, vs.Text)

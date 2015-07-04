@@ -46,10 +46,16 @@ func serve() {
 
 	r.Path("/").HandlerFunc(SetHeaders(SearchVerse))
 	r.Path("/verse/{verseId}").HandlerFunc(SetHeaders(GetVerseById))
-	r.Path("/{book}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/{book}/{chapter}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/{book}/{chapter}/{verse}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/book/{book}/chapter/{chapter}/verse/{verse}").HandlerFunc(SetHeaders(GetVerse))
+
+	r.Path("/{version:[a-zA-Z]+}/{book:[a-zA-Z]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/{version:[a-zA-Z]+}/{book:[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/{version:[a-zA-Z]+}/{book:[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/version/{version:[a-zA-Z]+}/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
+
+	r.Path("/{book:[a-zA-Z]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/{book:[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/{book:[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
 
 	http.ListenAndServe(":8089", r)
 }

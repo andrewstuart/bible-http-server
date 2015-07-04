@@ -70,6 +70,15 @@ func GetVerse(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if p, ok := vars["version"]; ok {
+		c := fmt.Sprintf(" lower(ver.extid) = lower($%d)", len(params)+1)
+		conditions = append(conditions, c)
+		if strings.Index(p, "Bible.") == -1 {
+			p = "Bible." + p
+		}
+		params = append(params, p)
+	}
+
 	query := VersesQueryBase + strings.Join(conditions, " AND ")
 	rows, err := db.Query(query, params...)
 

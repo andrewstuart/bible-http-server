@@ -48,10 +48,12 @@ type VerseResult struct {
 }
 
 const VerseQuery = `
-SELECT v.book, v.chapter, v.verse, vv.verseid, vv.text, ts_rank(vect, q)
+SELECT v.book, v.chapter, v.verse, vv.verseid, vv.text, ver.name, ts_rank(vect, q)
 FROM to_tsquery($1) q, verse_version vv 
 INNER JOIN verse v
 	ON v.id = vv.verseid
+INNER JOIN version ver
+	ON ver.id = vv.versionid
 WHERE vv.vect @@ q
 `
 
@@ -65,7 +67,7 @@ func search(str string) ([]VerseResult, error) {
 	verses := make([]VerseResult, 0, 5)
 	for verseCurs.Next() {
 		v := VerseResult{}
-		verseCurs.Scan(&v.Book, &v.Chapter, &v.VerseNum, &v.Verse.ID, &v.Verse.Text, &v.Match)
+		verseCurs.Scan(&v.Book, &v.Chapter, &v.VerseNum, &v.Verse.ID, &v.Verse.Text, &v.VersionId, &v.Match)
 
 		verses = append(verses, v)
 	}
