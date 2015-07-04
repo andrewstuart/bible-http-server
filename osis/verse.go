@@ -6,9 +6,10 @@ import (
 )
 
 type Verse struct {
-	Text string      `xml:",chardata"json:"text"`
-	ID   string      `xml:"osisID,attr"json:"id"`
-	Refs []Reference `xml:"note>reference"json:"references,omitempty"`
+	Text  string      `xml:",chardata"json:"text"`
+	ID    string      `xml:"osisID,attr"json:"id"`
+	Words []Word      `xml:"w"`
+	Refs  []Reference `xml:"note>reference"json:"references,omitempty"`
 }
 
 type Reference struct {
@@ -48,4 +49,10 @@ func NewVerseRef(ref string) (*VerseRef, error) {
 	vr.Verse--
 
 	return &vr, nil
+}
+
+type Word struct {
+	Text       string `xml:",chardata"`
+	Lemma      string `xml:"lemma,attr"`
+	Morphology string `xml:"morph,attr"`
 }

@@ -81,5 +81,5 @@ type Book struct {
 
 type Chapter struct {
 	Vrs []*Verse `xml:"verse"`
-	ID  string   `xml:"osisID,attr"`
+	ID  string   `xml:"osisWork,attr"`
 }
