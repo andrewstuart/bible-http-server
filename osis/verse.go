@@ -8,7 +8,7 @@ import (
 type Verse struct {
 	Text  string      `xml:",chardata"json:"text"`
 	ID    string      `xml:"osisID,attr"json:"id"`
-	Words []Word      `xml:"w"`
+	Words []Word      `xml:"w"json:"words,omitempty"`
 	Refs  []Reference `xml:"note>reference"json:"references,omitempty"`
 }
 
@@ -52,7 +52,9 @@ func NewVerseRef(ref string) (*VerseRef, error) {
 }
 
 type Word struct {
+	N          int    `xml:"n,attr"`
 	Text       string `xml:",chardata"`
+	Translit   string `xml:"xlit,attr"`
 	Lemma      string `xml:"lemma,attr"`
 	Morphology string `xml:"morph,attr"`
 }

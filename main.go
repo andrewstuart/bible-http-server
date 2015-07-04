@@ -25,7 +25,12 @@ func main() {
 				log.Fatal(err)
 			}
 
-			fmt.Printf("b = %+v\n", b)
+			v, err := b.GetVerse("Gen.1.1")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf("v = %+v\n", v)
 
 			err = store(b)
 			if err != nil {

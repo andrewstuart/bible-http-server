@@ -59,6 +59,8 @@ func store(b *osis.Bible) error {
 
 			for j, ch := range bk.Chs {
 				for k, vs := range ch.Vrs {
+
+					//Handle words (osis uses for greek/hebrew)
 					if len(vs.Words) != 0 {
 						txt := make([]string, len(vs.Words))
 						for i := range vs.Words {
@@ -67,7 +69,7 @@ func store(b *osis.Bible) error {
 
 						vs.Text = strings.Join(txt, " ")
 					}
-					fmt.Println(vs.Text)
+
 					var verseId int
 					err = tx.QueryRow(`SELECT id FROM verse  where book = $1 and chapter = $2 and verse = $3`, bk.ID, j+1, k+1).Scan(&verseId)
 					if err != nil {
