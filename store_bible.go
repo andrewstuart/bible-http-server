@@ -19,14 +19,14 @@ const (
 
 var db *sql.DB
 
-const PassEnvName = "PGPASSWORD"
+const passEnvName = "PGPASSWORD"
 
 func init() {
 	var err error
 
-	pass := strings.TrimSpace(os.Getenv(PassEnvName))
+	pass := strings.TrimSpace(os.Getenv(passEnvName))
 	if pass == "" {
-		log.Fatalf("Please set %s environment variable with postgres password.", PassEnvName)
+		log.Fatalf("Please set %s environment variable with postgres password.", passEnvName)
 	}
 
 	dbHost := stringDef(getLinkedPort(), "localhost")
@@ -45,8 +45,8 @@ func store(b *osis.Bible) error {
 		return err
 	}
 
-	var versionId int
-	err = tx.QueryRow(versionInsert, b.Version.ID, b.Version.Title).Scan(&versionId)
+	var versionID int
+	err = tx.QueryRow(versionInsert, b.Version.ID, b.Version.Title).Scan(&versionID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -72,16 +72,16 @@ func store(b *osis.Bible) error {
 						vs.Text = strings.Join(txt, " ")
 					}
 
-					var verseId int
-					err = tx.QueryRow(`SELECT id FROM verse  where book = $1 and chapter = $2 and verse = $3`, bk.ID, j+1, k+1).Scan(&verseId)
+					var verseID int
+					err = tx.QueryRow(`SELECT id FROM verse  where book = $1 and chapter = $2 and verse = $3`, bk.ID, j+1, k+1).Scan(&verseID)
 
 					if err != nil {
 						log.Printf("Could not find %s %d:%d, inserting.\n", bk.ID, j+1, k+1)
-						err = tx.QueryRow(`INSERT INTO verse (book, chapter, verse) values ($1, $2, $3) RETURNING id`, bk.ID, j+1, k+1).Scan(&verseId)
+						err = tx.QueryRow(`INSERT INTO verse (book, chapter, verse) values ($1, $2, $3) RETURNING id`, bk.ID, j+1, k+1).Scan(&verseID)
 						continue
 					}
 
-					_, err = tx.Exec(`INSERT INTO verse_version (versionId, verseId, text) values ($1, $2, $3)`, versionId, verseId, vs.Text)
+					_, err = tx.Exec(`INSERT INTO verse_version (versionId, verseId, text) values ($1, $2, $3)`, versionID, verseID, vs.Text)
 					if err != nil {
 						return
 					}
