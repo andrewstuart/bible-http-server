@@ -10,6 +10,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//CORSRouter wraps an http.Handler and adds a header.
+type CORSRouter struct {
+	r *mux.Router
+}
+
+func (cr CORSRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	cr.r.ServeHTTP(w, r)
+}
+
 var b osis.Bible
 
 func main() {
@@ -59,7 +69,7 @@ func serve() {
 
 	port := ":" + stringDef(os.Getenv("BIBLE_PORT"), "8080")
 	log.Printf("Listening on port %s\n", port)
-	err := http.ListenAndServe(port, r)
+	err := http.ListenAndServe(port, CORSRouter{r})
 	if err != nil {
 		log.Fatal(err)
 	}
