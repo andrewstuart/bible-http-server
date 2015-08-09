@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/andrewstuart/bible/osis"
+	"github.com/andrewstuart/bible-http-server/osis"
 )
 
 func SearchVerse(w http.ResponseWriter, r *http.Request) {

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/andrewstuart/bible/osis"
+	"github.com/andrewstuart/bible-http-server/osis"
 	"github.com/gorilla/mux"
 )
 
@@ -57,5 +57,19 @@ func serve() {
 	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
 	r.Path("/text/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
 
-	http.ListenAndServe(":8089", r)
+	port := ":" + stringDef(os.Getenv("BIBLE_PORT"), "8080")
+	log.Printf("Listening on port %s\n", port)
+	err := http.ListenAndServe(port, r)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func stringDef(s ...string) string {
+	for i := range s {
+		if s[i] != "" {
+			return s[i]
+		}
+	}
+	return ""
 }
