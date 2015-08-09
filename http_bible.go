@@ -106,3 +106,42 @@ func GetVerse(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 	enc.Encode(verses)
 }
+
+const bookQ = `
+SELECT id, name, ord
+FROM book
+ORDER BY ord asc`
+
+func getBooks(w http.ResponseWriter, r *http.Request) {
+	books := make([]Book, 0, 66)
+
+	rows, err := db.Query(bookQ)
+	if err != nil {
+		log.Println("Error getting books", err)
+		w.WriteHeader(500)
+		return
+	}
+
+	for rows.Next() {
+		b := Book{}
+		err := rows.Scan(&b.ID, &b.Name, &b.Order)
+		if err != nil {
+			log.Println("Error scanning book from db", err)
+			w.WriteHeader(500)
+			return
+		}
+
+		books = append(books, b)
+	}
+
+	err = json.NewEncoder(w).Encode(books)
+	if err != nil {
+		log.Println("Error encoding books to JSON.", err)
+	}
+}
+
+type Book struct {
+	Name  string `json:"name"`
+	ID    string `json:"id"`
+	Order int    `json:"order"`
+}

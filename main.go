@@ -54,18 +54,20 @@ func main() {
 func serve() {
 	r := mux.NewRouter()
 
-	r.Path("/").HandlerFunc(SetHeaders(SearchVerse))
-	r.Path("/verse/{verseId}").HandlerFunc(SetHeaders(GetVerseById))
+	r.Path("/").HandlerFunc(SearchVerse)
+	r.Path("/verse/{verseId}").HandlerFunc(GetVerseById)
 
-	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/text/version/{version:[a-zA-Z]+}/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(GetVerse)
+	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(GetVerse)
+	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(GetVerse)
+	r.Path("/text/version/{version:[a-zA-Z]+}/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(GetVerse)
 
-	r.Path("/text/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
-	r.Path("/text/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(SetHeaders(GetVerse))
+	r.Path("/text/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(GetVerse)
+	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(GetVerse)
+	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(GetVerse)
+	r.Path("/text/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(GetVerse)
+
+	r.Path("/books").HandlerFunc(getBooks)
 
 	port := ":" + stringDef(os.Getenv("BIBLE_PORT"), "8080")
 	log.Printf("Listening on port %s\n", port)
