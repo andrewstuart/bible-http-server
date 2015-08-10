@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/andrewstuart/bible-http-server/osis"
 )
 
-func SearchVerse(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query().Get("q")
+func findVerses(w http.ResponseWriter, r *http.Request) {
+	q := strings.Join(strings.Split(r.URL.Query().Get("q"), " "), " & ")
 
 	log.Printf("Search for verse term: %s\n", q)
 
@@ -42,12 +43,12 @@ type VerseResult struct {
 	Book      string  `json:"book"`
 	Chapter   int     `json:"chapter"`
 	VerseNum  int     `json:"verse"`
-	VersionId string  `json:"version,omitempty"`
+	VersionID string  `json:"version,omitempty"`
 	Match     float64 `json:"match,omitempty"`
 	osis.Verse
 }
 
-const VerseQuery = `
+const verseSearchQ = `
 SELECT v.book, v.chapter, v.verse, vv.verseid, vv.text, ver.name, ts_rank(vect, q)
 FROM to_tsquery($1) q, verse_version vv 
 INNER JOIN verse v
@@ -58,7 +59,7 @@ WHERE vv.vect @@ q
 `
 
 func search(str string) ([]VerseResult, error) {
-	verseCurs, err := db.Query(VerseQuery, str)
+	verseCurs, err := db.Query(verseSearchQ, str)
 
 	if err != nil {
 		return nil, err
@@ -67,7 +68,7 @@ func search(str string) ([]VerseResult, error) {
 	verses := make([]VerseResult, 0, 5)
 	for verseCurs.Next() {
 		v := VerseResult{}
-		verseCurs.Scan(&v.Book, &v.Chapter, &v.VerseNum, &v.Verse.ID, &v.Verse.Text, &v.VersionId, &v.Match)
+		verseCurs.Scan(&v.Book, &v.Chapter, &v.VerseNum, &v.Verse.ID, &v.Verse.Text, &v.VersionID, &v.Match)
 
 		verses = append(verses, v)
 	}

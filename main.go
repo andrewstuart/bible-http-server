@@ -54,7 +54,7 @@ func main() {
 func serve() {
 	r := mux.NewRouter()
 
-	r.Path("/").HandlerFunc(SearchVerse)
+	r.Path("/").HandlerFunc(findVerses)
 	r.Path("/verse/{verseId}").HandlerFunc(GetVerseByID)
 
 	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(GetVerse)

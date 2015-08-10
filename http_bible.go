@@ -89,7 +89,7 @@ func GetVerse(w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		v := VerseResult{}
-		err := rows.Scan(&v.Verse.Text, &v.VersionId, &v.Book, &v.Chapter, &v.VerseNum, &v.Verse.ID)
+		err := rows.Scan(&v.Verse.Text, &v.VersionID, &v.Book, &v.Chapter, &v.VerseNum, &v.Verse.ID)
 
 		if err != nil {
 			log.Println(err)
