@@ -1,10 +1,14 @@
-FROM ubuntu
+FROM golang:latest 
 MAINTAINER Andrew Stuart <andrew.stuart2@gmail.com>
-
-ENTRYPOINT /bible-http-server
 
 EXPOSE 8080
 ENV PGPASSWORD=test
 ENV BIBLE_PORT=8080
 
-ADD bible-http-server /
+RUN mkdir /app 
+ADD . /app/ 
+WORKDIR /app 
+RUN go build -o main . 
+CMD ["/app/main"]
+
+
