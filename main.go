@@ -57,15 +57,15 @@ func serve() {
 	r.Path("/").HandlerFunc(findVerses)
 	r.Path("/verse/{verseId}").HandlerFunc(GetVerseByID)
 
-	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(GetVerse)
-	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(GetVerse)
-	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(GetVerse)
-	r.Path("/text/version/{version:[a-zA-Z]+}/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(GetVerse)
+	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(getVerse)
+	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(getVerse)
+	r.Path("/text/{version:[a-zA-Z]+}/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(getVerse)
+	r.Path("/text/version/{version:[a-zA-Z]+}/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(getVerse)
 
-	r.Path("/text/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(GetVerse)
-	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(GetVerse)
-	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(GetVerse)
-	r.Path("/text/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(GetVerse)
+	r.Path("/text/{book:[1-3]?[a-zA-Z]+}").HandlerFunc(getVerse)
+	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}").HandlerFunc(getVerse)
+	r.Path("/text/{book:[1-3]?[a-zA-Z]+}/{chapter:[0-9]+}/{verse:[0-9]+}").HandlerFunc(getVerse)
+	r.Path("/text/book/{book:[a-zA-Z]+}/chapter/{chapter:[0-9]+}/verse/{verse:[0-9]+}").HandlerFunc(getVerse)
 
 	r.Path("/books").HandlerFunc(getBooks)
 

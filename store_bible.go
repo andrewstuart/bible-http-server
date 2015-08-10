@@ -2,42 +2,17 @@ package main
 
 import (
 	"compress/gzip"
-	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"strings"
 	"sync"
 
 	"github.com/andrewstuart/bible-http-server/osis"
-	_ "github.com/lib/pq"
 )
 
 const (
 	versionInsert = `INSERT INTO version (extid, name) VALUES ($1, $2) RETURNING id`
 )
-
-var db *sql.DB
-
-const passEnvName = "PGPASSWORD"
-
-func init() {
-	var err error
-
-	pass := strings.TrimSpace(os.Getenv(passEnvName))
-	if pass == "" {
-		log.Fatalf("Please set %s environment variable with postgres password.", passEnvName)
-	}
-
-	dbHost := stringDef(getLinkedPort(), "localhost")
-
-	dbConn := fmt.Sprintf("postgres://bible:%s@%s/bible?sslmode=disable", pass, dbHost)
-
-	db, err = sql.Open("postgres", dbConn)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func store(b *osis.Bible) error {
 	tx, err := db.Begin()
@@ -103,20 +78,6 @@ func store(b *osis.Bible) error {
 	}
 
 	return nil
-}
-
-func getLinkedPort() string {
-	e := os.Getenv("POSTGRES_PORT")
-	if e == "" {
-		return ""
-	}
-
-	vals := strings.Split(e, "://")
-	if len(vals) < 2 {
-		return ""
-	}
-
-	return vals[1]
 }
 
 func loadFromGzippedFile(path string) (*osis.Bible, error) {

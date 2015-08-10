@@ -51,8 +51,7 @@ INNER JOIN version ver
 	ON ver.id = vv.versionid
 WHERE `
 
-//GetVerse returns json for a verse by query
-func GetVerse(w http.ResponseWriter, r *http.Request) {
+func getVerse(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	//Dynamic WHERE, still sql-safe
