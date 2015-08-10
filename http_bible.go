@@ -19,8 +19,7 @@ INNER JOIN verse v
 	ON v.id = vv.verseid 
 WHERE vv.verseid = $1`
 
-//GetVerseByID gets a verse by id.
-func GetVerseByID(w http.ResponseWriter, r *http.Request) {
+func getVerseByID(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["verseId"]
 
 	if id == "" {
